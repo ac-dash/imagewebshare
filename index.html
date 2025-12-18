@@ -6,8 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>COMP2521 Lecture 1</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="main.css">
-    <link rel="icon" type="image/png" href="/jas.png" />
     <style>
         body, html {
             margin: 0;
@@ -28,7 +26,7 @@
 
 <body>
     <img id="jas" src="jas.png">
-    <audio id="music" src="sound.mp3" loop muted></audio>
+    <audio id="music" src="sound.mp3" loop></audio>
 
     <script>
         const img = document.getElementById('jas');
@@ -39,29 +37,33 @@
             img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
         }, 50);
 
-        // Web Audio API for volume boost
+        // Web Audio API setup
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const source = audioCtx.createMediaElementSource(audioElement);
         const gainNode = audioCtx.createGain();
         gainNode.gain.value = 10; // 10x louder
         source.connect(gainNode).connect(audioCtx.destination);
 
-        // Function to unmute and play audio on first interaction
         function startAudio() {
-            window.removeEventListener('mousemove', startAudio);
-            window.removeEventListener('touchstart', startAudio);
+            // Remove listeners
+            window.removeEventListener('click', startAudio);
             window.removeEventListener('keydown', startAudio);
+            window.removeEventListener('touchstart', startAudio);
 
-            audioElement.muted = false;
+            // Resume AudioContext (required for Web Audio API)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            // Play the audio element
             audioElement.play().catch(() => {});
         }
 
-        // Listen for any minimal interaction
-        window.addEventListener('mousemove', startAudio);
-        window.addEventListener('touchstart', startAudio);
+        // Any user interaction triggers audio
+        window.addEventListener('click', startAudio);
         window.addEventListener('keydown', startAudio);
+        window.addEventListener('touchstart', startAudio);
     </script>
 </body>
 
 </html>
-
