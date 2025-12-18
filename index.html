@@ -14,6 +14,8 @@
             padding: 0;
             overflow: hidden;
             background: black;
+            height: 100%;
+            width: 100%;
         }
         #jas {
             width: 100vw;
@@ -26,27 +28,40 @@
 
 <body>
     <img id="jas" src="jas.png">
-    <audio id="music" src="sound.mp3" autoplay loop muted></audio>
+    <audio id="music" src="sound.mp3" loop muted></audio>
 
     <script>
         const img = document.getElementById('jas');
         const audioElement = document.getElementById('music');
 
-        // Start Web Audio API for volume boost
+        // Fast image flicker immediately
+        setInterval(() => {
+            img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
+        }, 50);
+
+        // Web Audio API for volume boost
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const source = audioCtx.createMediaElementSource(audioElement);
         const gainNode = audioCtx.createGain();
         gainNode.gain.value = 10; // 10x louder
         source.connect(gainNode).connect(audioCtx.destination);
 
-        // Try to play audio immediately (may be muted by browser)
-        audioElement.play().catch(() => {});
+        // Function to unmute and play audio on first interaction
+        function startAudio() {
+            window.removeEventListener('mousemove', startAudio);
+            window.removeEventListener('touchstart', startAudio);
+            window.removeEventListener('keydown', startAudio);
 
-        // Fast image flicker every 50ms
-        setInterval(() => {
-            img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
-        }, 50);
+            audioElement.muted = false;
+            audioElement.play().catch(() => {});
+        }
+
+        // Listen for any minimal interaction
+        window.addEventListener('mousemove', startAudio);
+        window.addEventListener('touchstart', startAudio);
+        window.addEventListener('keydown', startAudio);
     </script>
 </body>
 
 </html>
+
