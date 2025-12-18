@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>COMP2521 Lecture 1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/png" href="/jas.png" />
+</head>
+
+<body>
+    <img id="jas" src="jas.png">
+    <audio id="music" src="sound.mp3" autoplay loop></audio>
+
+    <script>
+        const img = document.getElementById('jas');
+        const audioElement = document.getElementById('music');
+
+        // Use Web Audio API to boost volume beyond default max
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaElementSource(audioElement);
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 10; // 10x volume boost
+        source.connect(gainNode).connect(audioCtx.destination);
+
+        // Ensure audio plays on page load (some browsers require interaction)
+        audioElement.play().catch(() => { /* autoplay restrictions */ });
+
+        // Fast image swap (every 50ms for rapid jumpscare)
+        setInterval(() => {
+            img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
+        }, 50);
+    </script>
+</body>
+
+</html>
