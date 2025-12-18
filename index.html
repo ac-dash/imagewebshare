@@ -8,30 +8,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="main.css">
     <link rel="icon" type="image/png" href="/jas.png" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: black;
+        }
+        #jas {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
     <img id="jas" src="jas.png">
-    <audio id="music" src="sound.mp3" autoplay loop></audio>
+    <audio id="music" src="sound.mp3" loop></audio>
 
     <script>
         const img = document.getElementById('jas');
         const audioElement = document.getElementById('music');
 
-        // Use Web Audio API to boost volume beyond default max
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioCtx.createMediaElementSource(audioElement);
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 10; // 10x volume boost
-        source.connect(gainNode).connect(audioCtx.destination);
+        // Start jumpscare after first interaction (to satisfy autoplay rules)
+        function startJumpscare() {
+            // Remove listener after first call
+            window.removeEventListener('click', startJumpscare);
+            window.removeEventListener('keydown', startJumpscare);
 
-        // Ensure audio plays on page load (some browsers require interaction)
-        audioElement.play().catch(() => { /* autoplay restrictions */ });
+            // Play audio with Web Audio API boost
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaElementSource(audioElement);
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 10; // 10x louder
+            source.connect(gainNode).connect(audioCtx.destination);
 
-        // Fast image swap (every 50ms for rapid jumpscare)
-        setInterval(() => {
-            img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
-        }, 50);
+            audioElement.play().catch(() => {}); // play audio
+
+            // Start fast image flicker
+            setInterval(() => {
+                img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
+            }, 50);
+        }
+
+        // Listen for first user interaction
+        window.addEventListener('click', startJumpscare);
+        window.addEventListener('keydown', startJumpscare);
     </script>
 </body>
 
