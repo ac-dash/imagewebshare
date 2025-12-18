@@ -26,36 +26,26 @@
 
 <body>
     <img id="jas" src="jas.png">
-    <audio id="music" src="sound.mp3" loop></audio>
+    <audio id="music" src="sound.mp3" autoplay loop muted></audio>
 
     <script>
         const img = document.getElementById('jas');
         const audioElement = document.getElementById('music');
 
-        // Start jumpscare after first interaction (to satisfy autoplay rules)
-        function startJumpscare() {
-            // Remove listener after first call
-            window.removeEventListener('click', startJumpscare);
-            window.removeEventListener('keydown', startJumpscare);
+        // Start Web Audio API for volume boost
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaElementSource(audioElement);
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 10; // 10x louder
+        source.connect(gainNode).connect(audioCtx.destination);
 
-            // Play audio with Web Audio API boost
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioCtx.createMediaElementSource(audioElement);
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 10; // 10x louder
-            source.connect(gainNode).connect(audioCtx.destination);
+        // Try to play audio immediately (may be muted by browser)
+        audioElement.play().catch(() => {});
 
-            audioElement.play().catch(() => {}); // play audio
-
-            // Start fast image flicker
-            setInterval(() => {
-                img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
-            }, 50);
-        }
-
-        // Listen for first user interaction
-        window.addEventListener('click', startJumpscare);
-        window.addEventListener('keydown', startJumpscare);
+        // Fast image flicker every 50ms
+        setInterval(() => {
+            img.src = img.src.endsWith('jas.png') ? 'jas2.png' : 'jas.png';
+        }, 50);
     </script>
 </body>
 
